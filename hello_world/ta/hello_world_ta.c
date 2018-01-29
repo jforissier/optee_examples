@@ -142,6 +142,35 @@ TEE_Result TA_InvokeCommandEntryPoint(void __maybe_unused *sess_ctx,
 			uint32_t cmd_id,
 			uint32_t param_types, TEE_Param params[4])
 {
+	TEE_Result res;
+	TEE_TASessionHandle sess;
+	TEE_Param params2[4];
+	uint32_t param_types2 = TEE_PARAM_TYPES(TEE_PARAM_TYPE_NONE,
+                    TEE_PARAM_TYPE_NONE,
+                    TEE_PARAM_TYPE_NONE,
+                    TEE_PARAM_TYPE_NONE);
+
+	TEE_UUID ta2_uuid = { 0x8aaaf200, 0x2450, 0x11e4, \
+			{ 0xab, 0xe2, 0x00, 0x02, 0xa5, 0xd5, 0xc5, 0x1c} };
+	res = TEE_OpenTASession(&ta2_uuid, TEE_TIMEOUT_INFINITE, param_types2
+				, NULL, &sess, NULL);
+	if (res)
+		return res;
+
+	param_types2 = TEE_PARAM_TYPES(TEE_PARAM_TYPE_MEMREF_INPUT,
+						TEE_PARAM_TYPE_NONE,
+						TEE_PARAM_TYPE_NONE,
+						TEE_PARAM_TYPE_NONE);
+	params2[0].memref.buffer = NULL;
+	params2[0].memref.size = 0;
+	DMSG("Invoke Command to TA2!!!!!!!!!!!!!");
+	res = TEE_InvokeTACommand(sess, TEE_TIMEOUT_INFINITE, 0
+				, param_types2, params2, NULL);
+	if (res)
+		return res;
+
+	TEE_CloseTASession(sess);
+
 	(void)&sess_ctx; /* Unused parameter */
 
 	switch (cmd_id) {

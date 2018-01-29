@@ -8,8 +8,10 @@ TA_CROSS_COMPILE ?= $(CROSS_COMPILE)
 all:
 	$(MAKE) -C host CROSS_COMPILE="$(HOST_CROSS_COMPILE)"
 	$(MAKE) -C ta CROSS_COMPILE="$(TA_CROSS_COMPILE)"
+	$(MAKE) -C ta2 CROSS_COMPILE="$(TA_CROSS_COMPILE)"
 
 .PHONY: clean
 clean:
 	$(MAKE) -C host clean
 	$(MAKE) -C ta clean
+	$(MAKE) -C ta2 clean
