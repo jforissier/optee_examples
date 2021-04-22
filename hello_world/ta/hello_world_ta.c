@@ -64,6 +64,12 @@ TEE_Result TA_OpenSessionEntryPoint(uint32_t param_types,
 						   TEE_PARAM_TYPE_NONE,
 						   TEE_PARAM_TYPE_NONE,
 						   TEE_PARAM_TYPE_NONE);
+	TEE_Result res;
+	TEE_ObjectHandle h;
+	TEE_ObjectHandle h1;
+	uint8_t name[] = { 0x01, 0x02 };
+	int flags;
+	uint8_t data[] = "ABCD";
 
 	DMSG("has been called");
 
@@ -79,6 +85,127 @@ TEE_Result TA_OpenSessionEntryPoint(uint32_t param_types,
 	 * specify any means to logging from a TA.
 	 */
 	IMSG("Hello World!\n");
+
+	flags = TEE_DATA_FLAG_ACCESS_READ | TEE_DATA_FLAG_ACCESS_WRITE;
+	h = TEE_HANDLE_NULL;
+	res = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, name,
+					 sizeof(name), flags,
+					 NULL, data, sizeof(data), &h);
+	if (res) {
+		IMSG("Failed line %d", __LINE__);
+		return res;
+	}
+	h1 = TEE_HANDLE_NULL;
+	res = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, name,
+					 sizeof(name), flags,
+					 NULL, data, sizeof(data), &h1);
+	if (res != TEE_ERROR_ACCESS_CONFLICT) {
+		IMSG("Failed line %d", __LINE__);
+		return TEE_ERROR_GENERIC;
+	}
+	TEE_CloseObject(h);
+	/* Cleanup */
+	res = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, name,
+				       sizeof(name),
+				       flags | TEE_DATA_FLAG_ACCESS_WRITE_META,
+				       &h);
+	if (res) {
+		IMSG("Failed line %d", __LINE__);
+		return res;
+	}
+	TEE_CloseAndDeletePersistentObject(h);
+
+
+	h = TEE_HANDLE_NULL;
+	res = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, name,
+					 sizeof(name), flags,
+					 NULL, data, sizeof(data), &h);
+	if (res) {
+		IMSG("Failed line %d", __LINE__);
+		return res;
+	}
+	TEE_CloseObject(h);
+	h1 = TEE_HANDLE_NULL;
+	res = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, name,
+					 sizeof(name), flags,
+					 NULL, data, sizeof(data), &h1);
+	if (res != TEE_ERROR_ACCESS_CONFLICT) {
+		IMSG("Failed line %d", __LINE__);
+		return TEE_ERROR_GENERIC;
+	}
+	/* Cleanup */
+	res = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, name,
+				       sizeof(name),
+				       flags | TEE_DATA_FLAG_ACCESS_WRITE_META,
+				       &h);
+	if (res) {
+		IMSG("Failed line %d", __LINE__);
+		return res;
+	}
+	TEE_CloseAndDeletePersistentObject(h);
+
+
+	h = TEE_HANDLE_NULL;
+	res = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, name,
+					 sizeof(name), flags,
+					 NULL, data, sizeof(data), &h);
+	if (res) {
+		IMSG("Failed line %d", __LINE__);
+		return res;
+	}
+	TEE_CloseObject(h);
+	h1 = TEE_HANDLE_NULL;
+	res = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, name,
+					 sizeof(name),
+					 flags | TEE_DATA_FLAG_OVERWRITE,
+					 NULL, data, sizeof(data), &h1);
+	if (res) {
+		IMSG("Failed line %d", __LINE__);
+		return res;
+	}
+	TEE_CloseObject(h1);
+	/* Cleanup */
+	res = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, name,
+				       sizeof(name),
+				       flags | TEE_DATA_FLAG_ACCESS_WRITE_META,
+				       &h);
+	if (res) {
+		IMSG("Failed line %d", __LINE__);
+		return res;
+	}
+	TEE_CloseAndDeletePersistentObject(h);
+
+	flags = TEE_DATA_FLAG_ACCESS_READ | TEE_DATA_FLAG_ACCESS_WRITE |
+		TEE_DATA_FLAG_SHARE_READ | TEE_DATA_FLAG_SHARE_WRITE;
+	h = TEE_HANDLE_NULL;
+	res = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, name,
+					 sizeof(name), flags,
+					 NULL, data, sizeof(data), &h);
+	if (res) {
+		IMSG("Failed line %d", __LINE__);
+		return res;
+	}
+	h1 = TEE_HANDLE_NULL;
+	res = TEE_CreatePersistentObject(TEE_STORAGE_PRIVATE, name,
+					 sizeof(name),
+					 flags | TEE_DATA_FLAG_OVERWRITE,
+					 NULL, data, sizeof(data), &h1);
+	if (res) {
+		IMSG("Failed line %d", __LINE__);
+		return res;
+	}
+	TEE_CloseObject(h);
+	TEE_CloseObject(h1);
+	/* Cleanup */
+	res = TEE_OpenPersistentObject(TEE_STORAGE_PRIVATE, name,
+				       sizeof(name),
+				       flags | TEE_DATA_FLAG_ACCESS_WRITE_META,
+				       &h);
+	if (res) {
+		IMSG("Failed line %d", __LINE__);
+		return res;
+	}
+	TEE_CloseAndDeletePersistentObject(h);
 
 	/* If return value != TEE_SUCCESS the session will not be created. */
 	return TEE_SUCCESS;
