@@ -1,6 +1,6 @@
-project (optee_example_hello_world C)
+project (optee_example_hello_world_cxx)
 
-set (SRC host/main.c)
+set (SRC host/main.cpp)
 
 add_executable (${PROJECT_NAME} ${SRC})
 

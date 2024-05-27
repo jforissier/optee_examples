@@ -35,7 +35,12 @@
 /* For the UUID (found in the TA's h-file(s)) */
 #include <hello_world_ta.h>
 
-int main(void)
+class HelloWorld {
+public:
+	int run(void);
+};
+
+int HelloWorld::run(void)
 {
 	TEEC_Result res;
 	TEEC_Context ctx;
@@ -103,4 +108,11 @@ int main(void)
 	TEEC_FinalizeContext(&ctx);
 
 	return 0;
+}
+
+int main(void)
+{
+	HelloWorld hw;
+
+	return hw.run();
 }
